@@ -1,0 +1,43 @@
+services:
+    database:
+        container_name: postgres_hist
+        image: postgres:17.4
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        ports:
+            - "13000:5432"
+        volumes:
+            - ./database/data:/var/lib/postgresql/data
+
+    flyway:
+        container_name: flyway_hist
+        image: flyway/flyway
+        depends_on: 
+            - database
+        volumes:
+            - ./database/migrations:/flyway/sql
+        environment:
+            FLYWAY_USER: ${FLYWAY_USER}
+            FLYWAY_PASSWORD: ${FLYWAY_PASSWORD}
+            FLYWAY_URL: ${FLYWAY_URL}
+            FLYWAY_CLEAN_DISABLED: false
+        command: migrate
+
+    
+    data-api:
+        container_name: data_api_hist
+        build:
+            context: data
+        depends_on: 
+            - database
+        environment:
+            DB_PORT: ${DB_PORT}
+            DB_HOST: ${DB_HOST}
+            DB_NAME: ${DB_NAME}
+            DB_USER: ${DB_USER}
+            DB_PASSWORD: ${DB_PASSWORD}
+
+        ports:
+            - "14000:8000"

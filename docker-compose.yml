@@ -9,7 +9,7 @@ services:
         ports:
             - "13000:${POSTGRES_PORT}"
         volumes:
-            - ./database/data-api:/var/lib/postgresql/data-api
+            - ./database/data:/var/lib/postgresql/data
         healthcheck:
             test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
             interval: 1s

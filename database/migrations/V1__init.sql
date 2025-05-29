@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS epic_dependencies (
 );
 
 CREATE TABLE IF NOT EXISTS events (
-    id SERIAL PRIMARY KEY,
+    event_id SERIAL PRIMARY KEY,
     epic_id TEXT REFERENCES epics(epic_id) NOT NULL,
     event_date DATE NOT NULL,
     text TEXT NOT NULL

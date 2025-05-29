@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from dto import EpicCreate, EventCreate, Dependency
+from dto import EpicCreate, EventCreate, Dependency, EpicPatch, EventPatch
 import uvicorn
 import data
 
@@ -20,7 +20,10 @@ def get_epic_by_id(epic_id: str):
 
 @app.get("/epics/{epic_id}/events")
 def get_events_of_epic(epic_id: str):
-    return data.get_events_of_epic(epic_id)
+    try:
+        return data.get_events_of_epic(epic_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/epics/{epic_id}/depends-on")
@@ -29,7 +32,7 @@ def get_dependencies_of_epic(epic_id: str):
 
 
 @app.post("/epics")
-def post_epics(epic: EpicCreate):
+def post_epic(epic: EpicCreate):
     try:
         data.insert_epic(epic.epic_id, epic.title, epic.description)
         return {"status": "ok"}
@@ -38,16 +41,16 @@ def post_epics(epic: EpicCreate):
 
 
 @app.post("/events")
-def post_events(event: EventCreate):
+def post_event(event: EventCreate):
     try:
-        data.insert_event(event.epic_id, event.event_date, event.order_index, event.text)
+        data.insert_event(event.epic_id, event.event_date, event.text)
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.post("/dependencies")
-def post_dependencies(dep: Dependency):
+def post_dependency(dep: Dependency):
     try:
         data.insert_dependency(dep.epic_id, dep.depends_on)
         return {"status": "ok"}
@@ -64,7 +67,7 @@ def delete_epic(epic_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@app.delete("/epics/{epic_id}")
+@app.delete("/events/{event_id}")
 def delete_event(event_id: int):
     try:
         data.delete_event_by_id(event_id)
@@ -80,6 +83,21 @@ def delete_dependency(dep: Dependency):
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.patch("/epics/{epic_id}")
+def patch_epic(epic_id: str, patch: EpicPatch):
+    if not data.patch_epic_by_id(epic_id, patch):
+        raise HTTPException(status_code=404, detail="Epic not found or no fields provided")
+    return {"status": "updated"}
+
+
+@app.patch("/events/{event_id}")
+def patch_event(event_id: int, patch: EventPatch):
+    if not data.patch_event_by_id(event_id, patch):
+        raise HTTPException(status_code=404, detail="Event not found or no fields provided")
+    return {"status": "updated"}
+
 
 
 if __name__ == "__main__":

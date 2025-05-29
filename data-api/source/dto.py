@@ -2,20 +2,28 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import date
 
-# ---------- POST /epics ----------
 class EpicCreate(BaseModel):
     epic_id: str
     title: str
     description: str
 
-# ---------- POST /events ----------
 class EventCreate(BaseModel):
     epic_id: str
-    event_date: Optional[date]
-    order_index: int
+    event_date: date
     text: str
 
-# ---------- /dependencies ----------
 class Dependency(BaseModel):
     epic_id: str
-    depends_on: str
+    depends_on_epic_id: str
+
+
+class EpicPatch(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+
+
+class EventPatch(BaseModel):
+    epic_id: Optional[str] = None
+    event_date: Optional[date] = None
+    text: Optional[str] = None
+

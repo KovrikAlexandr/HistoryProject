@@ -15,7 +15,7 @@ class EventCreate(BaseModel):
     order_index: int
     text: str
 
-# ---------- POST /dependencies ----------
-class DependencyCreate(BaseModel):
+# ---------- /dependencies ----------
+class Dependency(BaseModel):
     epic_id: str
     depends_on: str

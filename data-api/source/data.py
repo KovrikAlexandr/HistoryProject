@@ -37,11 +37,11 @@ def get_epic_by_id(epic_id: str):
 def get_events_of_epic(epic_id: str):
     with conn.cursor() as cur:
         cur.execute(
-            "SELECT event_date, order_index, text FROM events WHERE epic_id = %s ORDER BY order_index",
+            "SELECT event_date, text FROM events WHERE epic_id = %s ORDER BY event_date ASC",
             (epic_id,)
         )
         return [
-            {"date": row[0], "order": row[1], "text": row[2]}
+            {"date": row[0], "text": row[1]}
             for row in cur.fetchall()
         ]
 
@@ -64,11 +64,11 @@ def insert_epic(epic_id: str, title: str, description: str):
     conn.commit()
 
 
-def insert_event(epic_id: str, event_date, order_index: int, text: str):
+def insert_event(epic_id: str, event_date, text: str):
     with conn.cursor() as cur:
         cur.execute(
-            "INSERT INTO events (epic_id, event_date, order_index, text) VALUES (%s, %s, %s, %s)",
-            (epic_id, event_date, order_index, text)
+            "INSERT INTO events (epic_id, event_date, text) VALUES (%s, %s, %s)",
+            (epic_id, event_date, text)
         )
     conn.commit()
 
@@ -80,3 +80,30 @@ def insert_dependency(epic_id: str, depends_on: str):
             (epic_id, depends_on)
         )
     conn.commit()
+
+
+def delete_epic_by_id(epic_id: str):
+    with conn.cursor() as cur:
+        cur.execute(
+            "DELETE FROM epics WHERE epic_id = %s", (epic_id,)
+        )
+    conn.commit()
+    return cur.rowcount > 0
+
+
+def delete_event_by_id(event_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            "DELETE FROM events WHERE event_id = %s", (event_id,)
+        )
+    conn.commit()
+    return cur.rowcount > 0
+
+
+def delete_dependency(epic_id: str, depends_on_epic_id: str):
+    with conn.cursor() as cur:
+        cur.execute(
+            "DELETE FROM dependencies WHERE epic_id = %s AND depends_on_epic_id = %s", (epic_id, depends_on_epic_id)
+        )
+    conn.commit()
+    return cur.rowcount > 0

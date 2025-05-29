@@ -1,21 +1,27 @@
 services:
     database:
-        container_name: postgres_hist
+        container_name: ${POSTGRES_HOST}
         image: postgres:17.4
         environment:
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         ports:
-            - "13000:5432"
+            - "13000:${POSTGRES_PORT}"
         volumes:
-            - ./database/data:/var/lib/postgresql/data
+            - ./database/data-api:/var/lib/postgresql/data-api
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+            interval: 1s
+            timeout: 1s
+            retries: 10
 
     flyway:
         container_name: flyway_hist
         image: flyway/flyway
         depends_on: 
-            - database
+            database:
+                condition: service_healthy
         volumes:
             - ./database/migrations:/flyway/sql
         environment:
@@ -23,15 +29,17 @@ services:
             FLYWAY_PASSWORD: ${FLYWAY_PASSWORD}
             FLYWAY_URL: ${FLYWAY_URL}
             FLYWAY_CLEAN_DISABLED: false
+            FLYWAY_LOCATIONS: ${FLYWAY_LOCATIONS}
         command: migrate
 
     
-    data-api:
+    data-api-api:
         container_name: data_api_hist
         build:
-            context: data
-        depends_on: 
-            - database
+            context: data-api
+        depends_on:
+            flyway:
+                condition: service_completed_successfully
         environment:
             DB_PORT: ${DB_PORT}
             DB_HOST: ${DB_HOST}

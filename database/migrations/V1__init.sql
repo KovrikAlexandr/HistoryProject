@@ -5,15 +5,14 @@ CREATE TABLE IF NOT EXISTS epics (
 );
 
 CREATE TABLE IF NOT EXISTS epic_dependencies (
-    epic_id TEXT REFERENCES epics(epic_id) ON DELETE RESTRICT,
+    epic_id TEXT REFERENCES epics(epic_id),
     depends_on_epic_id TEXT REFERENCES epics(epic_id) ON DELETE RESTRICT,
     PRIMARY KEY (epic_id, depends_on_epic_id)
 );
 
 CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    epic_id TEXT REFERENCES epics(epic_id) ON DELETE CASCADE,
-    event_date DATE,
-    order_index INT NOT NULL,
+    epic_id TEXT REFERENCES epics(epic_id) NOT NULL,
+    event_date DATE NOT NULL,
     text TEXT NOT NULL
 );

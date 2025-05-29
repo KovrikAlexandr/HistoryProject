@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from dto import EpicCreate, EventCreate, DependencyCreate
+from dto import EpicCreate, EventCreate, Dependency
 import uvicorn
 import data
 
@@ -47,13 +47,39 @@ def post_events(event: EventCreate):
 
 
 @app.post("/dependencies")
-def post_dependencies(dep: DependencyCreate):
+def post_dependencies(dep: Dependency):
     try:
         data.insert_dependency(dep.epic_id, dep.depends_on)
         return {"status": "ok"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
+
+@app.delete("/epics/{epic_id}")
+def delete_epic(epic_id: str):
+    try:
+        data.delete_epic_by_id(epic_id)
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.delete("/epics/{epic_id}")
+def delete_event(event_id: int):
+    try:
+        data.delete_event_by_id(event_id)
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.delete("/dependencies")
+def delete_dependency(dep: Dependency):
+    try:
+        data.delete_dependency(dep.epic_id, dep.depends_on_epic_id)
+        return {"status": "ok"}
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 if __name__ == "__main__":

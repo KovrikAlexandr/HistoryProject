@@ -45,7 +45,16 @@ data_client = HistDataClient("http://data-api:8000")
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer("Привет, я справочник по Второй Мировой Войне!")
+    text = (
+        "<b>Привет!</b>\n"
+        "Я — бот-справочник по <b>Второй Мировой войне</b>.\n\n"
+        "📌 <b>Команды:</b>\n"
+        "• <code>/epics</code> — список доступных эпиков (ключевых этапов войны)\n"
+        "• <code>/getepic &lt;epic_id&gt;</code> — подробности по выбранному эпику\n\n"
+        "Пример: <code>/getepic battle_moscow</code>"
+    )
+    await message.answer(text)
+
 
 
 @router.message(Command("epics"))

@@ -33,7 +33,7 @@ services:
         command: migrate
 
     
-    data-api-api:
+    data-api:
         container_name: data_api_hist
         build:
             context: data-api
@@ -49,3 +49,14 @@ services:
 
         ports:
             - "14000:8000"
+
+
+    bot:
+        container_name: hist_tg_bot
+        build:
+            context: bot
+        depends_on:
+            - data-api
+        environment:
+            BOT_TOKEN: ${BOT_TOKEN}
+

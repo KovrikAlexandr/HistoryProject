@@ -13,14 +13,6 @@ conn = psycopg2.connect(
     port=os.getenv("DB_PORT")
 )
 
-# conn = psycopg2.connect(
-#     database="hist_db",
-#     user="admin",
-#     password="root",
-#     host="localhost",
-#     port="13000"
-# )
-
 
 def get_all_epics():
     try:
@@ -65,10 +57,18 @@ def get_dependencies_of_epic(epic_id: str):
     try:
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT depends_on_epic_id FROM epic_dependencies WHERE epic_id = %s",
+                """
+                SELECT dep.depends_on_epic_id, e.title, e.description
+                FROM epic_dependencies as dep
+                    JOIN epics AS e ON dep.depends_on_epic_id = e.epic_id
+                WHERE dep.epic_id = %s
+                """,
                 (epic_id,)
             )
-            return [row[0] for row in cur.fetchall()]
+            return [
+                {"depends_on_epic_id": row[0], "title": row[1], "description": row[2]}
+                for row in cur.fetchall()
+            ]
     except Exception as e:
         conn.rollback()
         raise e

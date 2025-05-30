@@ -68,7 +68,7 @@ def post_dependencies(dep_list: Union[Dependency, List[Dependency]] = Body(...))
 
     for dep in dep_list:
         try:
-            data.insert_dependency(dep.epic_id, dep.depends_on, getattr(dep, "description", None))
+            data.insert_dependency(dep.epic_id, dep.depends_on_epic_id, getattr(dep, "description", None))
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
 

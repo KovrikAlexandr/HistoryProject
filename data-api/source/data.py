@@ -1,3 +1,5 @@
+from typing import Optional
+
 import psycopg2
 import os
 from dto import EpicPatch, EventPatch
@@ -74,13 +76,17 @@ def insert_event(epic_id: str, event_date, text: str):
     conn.commit()
 
 
-def insert_dependency(epic_id: str, depends_on: str):
+def insert_dependency(epic_id: str, depends_on: str, description: Optional[str] = None):
     with conn.cursor() as cur:
         cur.execute(
-            "INSERT INTO epic_dependencies (epic_id, depends_on_epic_id) VALUES (%s, %s)",
-            (epic_id, depends_on)
+            """
+            INSERT INTO epic_dependencies (epic_id, depends_on_epic_id, description)
+            VALUES (%s, %s, %s)
+            """,
+            (epic_id, depends_on, description)
         )
     conn.commit()
+
 
 
 def delete_epic_by_id(epic_id: str):
@@ -113,7 +119,7 @@ def delete_dependency(epic_id: str, depends_on_epic_id: str):
     conn.commit()
 
 
-def patch_epic_by_id(epic_id: str, patch: EpicPatch):
+def update_epic(epic_id: str, patch: EpicPatch):
     fields = []
     values = []
     if patch.title is not None:
@@ -137,7 +143,7 @@ def patch_epic_by_id(epic_id: str, patch: EpicPatch):
             return cur.rowcount > 0
 
 
-def patch_event_by_id(event_id: int, patch: EventPatch):
+def update_event(event_id: int, patch: EventPatch):
     fields = []
     values = []
     if patch.epic_id is not None:
@@ -163,3 +169,18 @@ def patch_event_by_id(event_id: int, patch: EventPatch):
                 tuple(values)
             )
             return cur.rowcount > 0
+
+
+def update_dependency(epic_id: str, depends_on: str, description: str):
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE epic_dependencies
+            SET description = %s
+            WHERE epic_id = %s AND depends_on_epic_id = %s
+            """,
+            (description, epic_id, depends_on)
+        )
+    conn.commit()
+    return cur.rowcount > 0
+

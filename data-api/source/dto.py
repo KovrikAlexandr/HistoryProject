@@ -15,7 +15,10 @@ class EventCreate(BaseModel):
 class Dependency(BaseModel):
     epic_id: str
     depends_on_epic_id: str
+    description: Optional[str] = None
 
+class DependencyPatch(BaseModel):
+    description: str
 
 class EpicPatch(BaseModel):
     title: Optional[str] = None
